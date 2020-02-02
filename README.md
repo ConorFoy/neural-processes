@@ -1,3 +1,6 @@
+Added **conditional_neural_process_with_tensorflow_ver_2.0.0** notebook a modified version of the **conditional_neural_process** notebook to run with tensorflow version 2.0.0. The descriptions and functionality of the original have been kept where possible, but as a result the descriptions don't make perfect sense in the context of the new code. 
+
+
 # The Neural Process Family
 
 This repository contains notebook implementations of the following Neural Process variants:
