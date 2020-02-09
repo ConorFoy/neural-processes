@@ -1,4 +1,8 @@
-Added **conditional_neural_process_with_tensorflow_ver_2.0.0** notebook a modified version of the **conditional_neural_process** notebook to run with tensorflow version 2.0.0. The descriptions and functionality of the original have been kept where possible, but as a result the descriptions don't make perfect sense in the context of the new code. 
+Added **conditional_neural_process_with_tensorflow_ver_2.0.0_Ex1_1D_Regression** notebook, a modified version of the **conditional_neural_process** notebook to run with tensorflow version 2.0.0. The descriptions and functionality of the original have been kept where possible, but as a result the descriptions don't make perfect sense in the context of the new code. 
+
+Added **conditional_neural_process_with_tensorflow_ver_2.0.0_Ex2_mnist** notebook, code replicating the second example described in the paper using tensorflow version 2.0.0.
+Added **CNP_mnist_1** **..2** and **..3** the weights after training for 20,000, 100,000 and 140,000 iterations respectively.
+
 
 
 # The Neural Process Family
