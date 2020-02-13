@@ -1,3 +1,21 @@
+import pretty_midi
+import numpy as np
+import matplotlib.pyplot as plt
+from keras.models import Model
+from keras.layers import Dense, Input, Lambda, Concatenate
+
+from keras import backend as K
+
+import tensorflow as tf
+import tensorflow_probability as tfp # for tf version 2.0.0, tfp version 0.8 is needed 
+import numpy as np
+
+import matplotlib.pyplot as plt
+import csv
+from sys import stdout
+import random
+
+
 class DataLinks(object):
     
     def __init__(self, file, what_type, train_sec, test_sec):
