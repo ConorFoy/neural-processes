@@ -65,6 +65,12 @@ class TrainingExample(object):
         return len(self.link)
 
     def contextify(self, window_size):
+
+        """
+        window_size - size of the window given in TIMESTEPS
+
+        """
+
         timesteps  = self.context.shape[-1]
         stepsize   = int(window_size/3)
         batch_size = self.context.shape[0]
@@ -170,7 +176,7 @@ class DataObject(DataLinks):
                                      batch_data_link
         )
 
-        batch_data.contextify(window_size)
+        batch_data.contextify(self.window_size)
         
         return batch_data
                     
