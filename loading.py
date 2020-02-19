@@ -95,6 +95,12 @@ class TrainingExample(object):
         contextified = tf.reshape(contextified, desired_shpe)
         self.context = contextified
 
+        target_shape = [self.target.shape[0],
+                        self.target.shape[2],
+                        self.target.shape[1]]
+
+        self.target = tf.reshape(self.target, target_shape)
+
 
 
 class Batch(object):

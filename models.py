@@ -7,6 +7,17 @@ import tensorflow as tf
 #import tensorflow_probability as tfp # for tf version 2.0.0, tfp version 0.8 is needed 
 
 
+def sequence_loss(y_true, y_pred):
+
+	# We sum binary cross entropy across timesteps
+	# and across batches
+
+	pass
+
+
+
+
+
 def simple_model(training_batch, window_size,
 	lstm_units = 100,
 	encoder_dropout = 0.1,
@@ -15,7 +26,7 @@ def simple_model(training_batch, window_size,
 	training_batch.contextify(window_size)
 
 	context_shape = training_batch.context.shape # [batch_size,num_windows,timesteps_per_window,note_size]
-
+	target_shape  = training_batch.target.shape  # [batch_size, timesteps, note_size]
 
 	# ----------------- here define model
 
@@ -45,14 +56,14 @@ def simple_model(training_batch, window_size,
 
 	# Decoder
 
-	propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1,150,1]))(mean_representation)
+	propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1,target_shape[1],1]))(mean_representation)
 
 	decoder_input = propagate_in_time
 
 	decoder, _, _ = LSTM(units = context_shape[3], 
 				      dropout = encoder_dropout,
 				      return_sequences = True,
-				      return_state=True,
+				      return_state = True,
 				      activation = 'sigmoid',
 				      name = 'Decoder_lstm')(decoder_input)
 
