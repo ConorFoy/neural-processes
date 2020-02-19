@@ -94,18 +94,20 @@ class TrainingExample(object):
 
         contextified = tf.convert_to_tensor(contextified, dtype=tf.float32) # [window_num, batch_size, note_size, timesteps]
 
-        desired_shpe = [contextified.shape[1], # batch_size
-                        contextified.shape[0], # window_number 
-                        contextified.shape[-1], # timestep
-                        contextified.shape[2]] # [batch_size, window_number, timestep, note_size]
-        contextified = tf.reshape(contextified, desired_shpe)
+        contextified = tf.transpose(contextified, perm = [1,0,3,2])
+
+        #desired_shpe = [contextified.shape[1], # batch_size
+        #                contextified.shape[0], # window_number 
+        #                contextified.shape[-1], # timestep
+        #                contextified.shape[2]] # [batch_size, window_number, timestep, note_size]
+        #contextified = tf.reshape(contextified, desired_shpe)
         self.context = contextified
 
         #target_shape = [self.target.shape[0],
         #                self.target.shape[2],
         #                self.target.shape[1]]
 
-        #self.target = tf.reshape(self.target, target_shape)
+        self.target = tf.transpose(self.target, perm = [0,2,1])
 
 
 
