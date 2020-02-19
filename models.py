@@ -7,12 +7,10 @@ import tensorflow as tf
 #import tensorflow_probability as tfp # for tf version 2.0.0, tfp version 0.8 is needed 
 
 
-def simple_model(training_batch, window_size,
+def simple_model(training_batch,
 	lstm_units = 100,
 	encoder_dropout = 0.1,
 	decoder_dropout = 0.1):
-
-	training_batch.contextify(window_size)
 
 	context_shape = training_batch.context.shape # [batch_size,num_windows,timesteps_per_window,note_size]
 	target_shape  = training_batch.target.shape  # [batch_size, timesteps, note_size]
