@@ -61,6 +61,7 @@ def simple_model(training_batch,
 	propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1,target_shape[1],1]))(mean_representation)
 
 	#decoder_input = Lambda(lambda x: tf.concat([input_target, x], axis = 2))(propagate_in_time)
+	decoder_input = propagate_in_time
 
 	decoder, _, _ = LSTM(units = 512, 
 				      dropout = decoder_dropout,
