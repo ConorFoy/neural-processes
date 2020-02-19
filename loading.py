@@ -145,6 +145,7 @@ class DataObject(DataLinks):
     ):
         super(DataObject, self).__init__(file, what_type, train_sec, test_sec)
         self.fs = fs
+        self.window_size = window_size
 
     #def __getitem__(self, arg):
     #    return DataObject(self.xdata[arg], self.ydata[arg])
