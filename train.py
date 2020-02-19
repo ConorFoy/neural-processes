@@ -1,8 +1,8 @@
-#!../testenv/bin/python3.5
+#!../testenv/bin/python3
 
 import pretty_midi
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from keras.models import Model
 from keras.layers import Dense, Input, Lambda, Concatenate, LSTM
 
@@ -12,7 +12,6 @@ import tensorflow as tf
 #import tensorflow_probability as tfp # for tf version 2.0.0, tfp version 0.8 is needed 
 import numpy as np
 
-import matplotlib.pyplot as plt
 import csv
 from sys import stdout
 import random
