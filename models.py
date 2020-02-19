@@ -7,17 +7,6 @@ import tensorflow as tf
 #import tensorflow_probability as tfp # for tf version 2.0.0, tfp version 0.8 is needed 
 
 
-def sequence_loss(y_true, y_pred):
-
-	# We sum binary cross entropy across timesteps
-	# and across batches
-
-	pass
-
-
-
-
-
 def simple_model(training_batch, window_size,
 	lstm_units = 100,
 	encoder_dropout = 0.1,

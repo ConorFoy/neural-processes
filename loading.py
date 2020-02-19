@@ -135,6 +135,7 @@ class DataObject(DataLinks):
                  train_sec, 
                  test_sec,
                  fs,
+                 window_size,
     ):
         super(DataObject, self).__init__(file, what_type, train_sec, test_sec)
         self.fs = fs
@@ -168,6 +169,8 @@ class DataObject(DataLinks):
                                      tf.convert_to_tensor(batch_data_target, dtype=tf.float32),
                                      batch_data_link
         )
+
+        batch_data.contextify(window_size)
         
         return batch_data
                     
