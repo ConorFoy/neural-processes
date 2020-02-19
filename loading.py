@@ -101,11 +101,11 @@ class TrainingExample(object):
         contextified = tf.reshape(contextified, desired_shpe)
         self.context = contextified
 
-        target_shape = [self.target.shape[0],
-                        self.target.shape[2],
-                        self.target.shape[1]]
+        #target_shape = [self.target.shape[0],
+        #                self.target.shape[2],
+        #                self.target.shape[1]]
 
-        self.target = tf.reshape(self.target, target_shape)
+        #self.target = tf.reshape(self.target, target_shape)
 
 
 
@@ -170,7 +170,7 @@ class DataObject(DataLinks):
             for i in range(int(examples_per_song)):
                 start = random.randint(0, timesteps-self.fs*(self.train_sec+self.test_sec))
                 batch_data_context.append(piano_matrix[:,start:(start+self.fs*self.train_sec)])
-                batch_data_target.append(piano_matrix[:,(start+self.fs*self.train_sec):start+self.fs*(self.train_sec+self.test_sec)])
+                batch_data_target.append(piano_matrix[:,(start+self.fs*self.train_sec):(start+self.fs*(self.train_sec+self.test_sec))])
                 batch_data_link.append(link)
         batch_data = TrainingExample(tf.convert_to_tensor(batch_data_context, dtype=tf.float32),
                                      tf.convert_to_tensor(batch_data_target, dtype=tf.float32),
