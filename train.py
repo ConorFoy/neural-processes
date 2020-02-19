@@ -25,7 +25,7 @@ def generate(train_batch):
     """a generator for batches, so model.fit_generator can be used. """
     while True:
         new_batch = next(train_batch)
-        yield ([new_batch.context, new_batch.target], new_batch.target)
+        yield (new_batch.context, new_batch.target)
 
 if __name__ == '__main__':
 
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	file = 'maestro-v2.0.0/maestro-v2.0.0.csv'
 
 	# Call data class
-	data = DataObject(file, what_type = 'train', train_sec = 15, test_sec = 5, fs = 20, window_size = 15)
+	data = DataObject(file, what_type = 'train', train_sec = 15, test_sec = 5, fs = 50, window_size = 15)
 
 	# Create a batch class which we will iterate over
 	train_batch = Batch(data, batch_size = 128, songs_per_batch = 4)
