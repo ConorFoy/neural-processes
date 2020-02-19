@@ -77,7 +77,7 @@ def simple_model(training_batch,
 				      name = 'Decoder_lstm_2')(decoder)
 
 
-	model = Model(input_context, decoder)
+	model = Model([input_context,input_target], decoder)
 
 	#model = tf.keras.Sequential([tf.keras.layers.Lambda(lambda x: tf.reshape(x, [-1,x.shape[2],x.shape[3]]), 
 									    #name="Reshape_layer_1"),
