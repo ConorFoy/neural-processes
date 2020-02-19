@@ -47,22 +47,22 @@ def simple_model(training_batch,
 				   dropout = encoder_dropout, 
 				   name = 'Encoder_lstm_2')(encoder)
 
-	encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
-	encoder = Dense(256, activation = 'relu', name = 'Encoder_dense_2')(encoder)
-	encoder = Dense(10, activation = 'tanh', name = 'Encoder_dense_3')(encoder)
+	encoder = Dense(1024, activation = 'relu', name = 'Encoder_dense_1')(encoder)
+	encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_2')(encoder)
+	encoder = Dense(512, activation = 'tanh', name = 'Encoder_dense_3')(encoder)
 
 	mean_representation = Lambda(lambda x: K.mean(tf.reshape(x, [context_shape[0], 
 																 context_shape[1], 
-																 10]), axis = -2),
+																 512]), axis = -2),
 								 name="Mean_representation_layer")(encoder)
 
 	# Decoder
 
 	propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1,target_shape[1],1]))(mean_representation)
 
-	decoder_input = Lambda(lambda x: tf.concat([input_target, x], axis = 2))(propagate_in_time)
+	#decoder_input = Lambda(lambda x: tf.concat([input_target, x], axis = 2))(propagate_in_time)
 
-	decoder, _, _ = LSTM(units = lstm_units, 
+	decoder, _, _ = LSTM(units = 512, 
 				      dropout = decoder_dropout,
 				      return_sequences = True,
 				      return_state = True,
@@ -77,7 +77,7 @@ def simple_model(training_batch,
 				      name = 'Decoder_lstm_2')(decoder)
 
 
-	model = Model([input_context,input_target], decoder)
+	model = Model(input_context, decoder)
 
 	#model = tf.keras.Sequential([tf.keras.layers.Lambda(lambda x: tf.reshape(x, [-1,x.shape[2],x.shape[3]]), 
 									    #name="Reshape_layer_1"),

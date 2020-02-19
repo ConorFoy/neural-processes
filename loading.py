@@ -56,10 +56,11 @@ class DataLinks(object):
 
 class TrainingExample(object):
     
-    def __init__(self, context, target, link):
+    def __init__(self, context, target, link, start):
         self.context = context
-        self.target = target
-        self.link = link
+        self.target  = target
+        self.link    = link
+        self.start   = start
 
     def __len__(self):
         return len(self.link)
@@ -161,6 +162,7 @@ class DataObject(DataLinks):
         batch_data_context = []
         batch_data_target  = []
         batch_data_link    = []
+        batch_data_starts  = []
         
         random_songs = random.sample(self.links, songs_per_batch)
         
@@ -174,9 +176,11 @@ class DataObject(DataLinks):
                 batch_data_context.append(piano_matrix[:,start:(start+self.fs*self.train_sec)])
                 batch_data_target.append(piano_matrix[:,(start+self.fs*self.train_sec):(start+self.fs*(self.train_sec+self.test_sec))])
                 batch_data_link.append(link)
+                batch_data_starts.append(start)
         batch_data = TrainingExample(tf.convert_to_tensor(batch_data_context, dtype=tf.float32),
                                      tf.convert_to_tensor(batch_data_target, dtype=tf.float32),
-                                     batch_data_link
+                                     batch_data_link,
+                                     batch_data_starts,
         )
 
         batch_data.contextify(self.window_size)
