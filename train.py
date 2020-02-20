@@ -55,11 +55,11 @@ if __name__ == '__main__':
 	filename = date.today()
 
 	# dd/mm/YY
-	filename = 'training_'+filename.strftime("%d/%m/%Y")+'.txt'
+	filename = 'training_'+filename.strftime("%d-%m-%Y")
 
 	model.save_weights(filename+'.h5')
 
-	with open(filename, 'w+') as f:
+	with open(filename+'.txt', 'w+') as f:
 		for element in history.history['loss']:
 			f.write('\n'+element)
 
