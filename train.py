@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	data = DataObject(file, what_type = 'train', train_sec = 15, test_sec = 5, fs = 50, window_size = 15)
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 128, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	model = simple_model(curr_batch)
