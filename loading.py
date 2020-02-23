@@ -14,14 +14,17 @@ import csv
 from sys import stdout
 import random
 
+from midi_to_statematrix import *
+from data import *
+
 
 class DataLinks(object):
     
-    def __init__(self, file, what_type, train_sec, test_sec):
+    def __init__(self, file, what_type, train_tms, test_tms):
         self.file = file
         self.what_type = what_type
-        self.train_sec = train_sec
-        self.test_sec = test_sec
+        self.train_tms = train_tms
+        self.test_tms = test_tms
         self.get_links()
         self.get_number_of_examples()
     
@@ -45,7 +48,7 @@ class DataLinks(object):
     
     def get_number_of_examples(self):
         num_examples   = []
-        example_length = self.train_sec + self.test_sec 
+        example_length = self.train_tms + self.test_tms 
         for idx, link in enumerate(self.links):
             link_duration = self.duration[idx]
             num_examples.append(int(float(link_duration)/example_length))
@@ -55,16 +58,76 @@ class DataLinks(object):
 
 class TrainingExample(object):
     
-    def __init__(self, context, target, link, start):
+    def __init__(self, context, target, link, start, target_split):
         self.context = context
         self.target  = target
+        self.target_split = target_split
         self.link    = link
         self.start   = start
 
     def __len__(self):
         return len(self.link)
 
+    def featurize(self, use_biaxial = True):
+
+        if use_biaxial == True:
+            
+            # Featurize context
+
+            
+
+            # Featurize target
+
+            # target shape is (batch_size, test_tms, 78, 2)
+
+            # Firsly split on target split
+            self.target_train = self.target[:,0:self.target_split,:]
+            self.target_pred  = self.target[:,self.target_split,:]
+
+            tt_shape = self.target_train.shape
+
+            # Now extract features with hexandrias shitty code
+            features = np.reshape(self.target_train, 
+                [tt_shape[0]*tt_shape[1], 
+                 tt_shape[2], 
+                 tt_shape[3]]
+            )
+
+            features = np.array(noteStateMatrixToInputForm(features))
+            features = np.reshape(features,
+                [tt_shape[0],
+                 tt_shape[1],
+                 tt_shape[2],
+                 features.shape[-1]])
+
+            # Now get rid of articulation
+            self.target_train = DataObject.drop_articulation(self.target_train)
+
+            # Now add last change variable
+            last_change = DataObject.get_last_change_tensor(self.target_train)
+
+            self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
+            self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
+
+        else:
+
+            # Firsly split on target split
+            self.target_train = self.target[:,0:self.target_split,:]
+            self.target_pred  = self.target[:,self.target_split,:]
+
+            # Now get rid of articulation
+            self.target_train = DataObject.drop_articulation(self.target_train)
+
+            # Now add last change variable
+            last_change = DataObject.get_last_change_tensor(self.target_train)
+
+            self.target_train = np.append(self.target_train, last_change, axis = 2)
+
+
+
     def contextify(self, window_size):
+
+        print("Here")
 
         """
         window_size - size of the window given in TIMESTEPS
@@ -140,12 +203,12 @@ class DataObject(DataLinks):
 
     def __init__(self, file, 
                  what_type, 
-                 train_sec, 
-                 test_sec,
+                 train_tms, 
+                 test_tms,
                  fs,
                  window_size,
     ):
-        super(DataObject, self).__init__(file, what_type, train_sec, test_sec)
+        super(DataObject, self).__init__(file, what_type, train_tms, test_tms)
         self.fs = fs
         self.window_size = window_size
 
@@ -158,57 +221,122 @@ class DataObject(DataLinks):
     def generate_batch(self, batch_size, songs_per_batch):
         
         batch_data = []
-        batch_data_context = []
-        batch_data_target  = []
-        batch_data_link    = []
-        batch_data_starts  = []
+        l_batch_data_context   = []
+        r_batch_data_context   = []
+        batch_data_target      = []
+        batch_data_link        = []
+        batch_data_starts      = []
         
-        random_songs = random.sample(self.links, songs_per_batch)
+        random_songs       = random.sample(self.links, songs_per_batch)
+        random_songs_index = [self.links.index(song) for song in random_songs]
         
         examples_per_song = batch_size/songs_per_batch
+
+        target_split = random.randint(1, (self.test_tms)-2)
         
-        for link in random_songs:
-            piano_matrix = DataObject.get_piano_matrix(self, link)
-            timesteps = piano_matrix.shape[-1]
+        for idx, link in enumerate(random_songs):
+            
+            piano_matrix = DataObject.get_piano_matrix(self, link) # whole matrix
+            timesteps = piano_matrix.shape[0]
+            #fs        = int(timesteps/self.duration[random_songs_index[idx]])
+            
             for i in range(int(examples_per_song)):
-                start = random.randint(0, timesteps-self.fs*(self.train_sec+self.test_sec))
-                batch_data_context.append(piano_matrix[:,start:(start+self.fs*self.train_sec)])
-                batch_data_target.append(piano_matrix[:,(start+self.fs*self.train_sec):(start+self.fs*(self.train_sec+self.test_sec))])
+                
+                start        = random.randint(self.train_tms, timesteps-(self.train_tms+self.test_tms))
+                
+                l_batch_data_context.append(DataObject.drop_articulation3d(piano_matrix[(start-self.train_tms):start, :]))
+                r_batch_data_context.append(DataObject.drop_articulation3d(piano_matrix[(start+self.test_tms):(start+self.train_tms+self.test_tms),:]))
+                batch_data_target.append(piano_matrix[start:(start+self.test_tms), :])
                 batch_data_link.append(link)
                 batch_data_starts.append(start)
-        batch_data = TrainingExample(tf.convert_to_tensor(batch_data_context, dtype=tf.float32),
-                                     tf.convert_to_tensor(batch_data_target, dtype=tf.float32),
+
+        batch_data = TrainingExample(np.stack([np.array(l_batch_data_context), 
+                                               np.array(r_batch_data_context)]),
+                                     np.array(batch_data_target),
                                      batch_data_link,
                                      batch_data_starts,
+                                     target_split,
         )
-
-        batch_data.contextify(self.window_size)
         
         return batch_data
                     
     def get_piano_matrix(self, link):
-        
-        self.piano_matrix = []
-        self.training_examples = []
-        
-        lowerBound = 20
-        upperBound = 108
     
-        midi_data = pretty_midi.PrettyMIDI('maestro-v2.0.0/'+link)
+        piano_matrix = np.array(midiToNoteStateMatrix('maestro-v2.0.0/'+link))
 
-        piano_matrix = midi_data.get_piano_roll(fs = self.fs)
-
-        piano_matrix = piano_matrix[lowerBound:upperBound, :]
+        #old_piano_matrix        = np.array(piano_matrix)
+        #old_piano_matrix[:,:,0] = old_piano_matrix[:,:,0]+old_piano_matrix[:,:,1]
+        #piano_matrix = np.zeros((old_piano_matrix.shape[0], old_piano_matrix.shape[1]))
+        #piano_matrix[:,:] = old_piano_matrix[:,:,0]
+        #piano_matrix[piano_matrix > 0] = 1
 
         # Strip silence at beginning and end
-        start = np.min(np.where(piano_matrix != 0)[1])
-        end   = np.max(np.where(piano_matrix != 0)[1])
+        start = np.min(np.where(piano_matrix != 0)[0])
+        end   = np.max(np.where(piano_matrix != 0)[0])
 
-        piano_matrix = piano_matrix[:, start:end]
-
-        # Discard pitch information
-        piano_matrix[piano_matrix > 0] = 1
+        piano_matrix = piano_matrix[start:end, :]
             
-        return tf.convert_to_tensor(piano_matrix, dtype=tf.float32)
+        return piano_matrix
+
+    @staticmethod
+    def drop_articulation(tensor):
+
+        """
+        this method is only for 4-dimensional tensors
+        """
+
+        old_piano_matrix        = tensor
+        old_piano_matrix[:,:,:,0] = old_piano_matrix[:,:,:,0]+old_piano_matrix[:,:,:,1]
+        piano_matrix = np.zeros((old_piano_matrix.shape[0], 
+                                 old_piano_matrix.shape[1],
+                                 old_piano_matrix.shape[2]))
+        piano_matrix[:,:,:] = old_piano_matrix[:,:,:,0]
+        piano_matrix[piano_matrix > 0] = 1
+
+        return piano_matrix
+
+    @staticmethod
+    def drop_articulation3d(tensor):
+
+        """
+        this method is only for 3-dimensional tensors
+        """
+
+        old_piano_matrix        = tensor
+        old_piano_matrix[:,:,0] = old_piano_matrix[:,:,0]+old_piano_matrix[:,:,1]
+        piano_matrix = np.zeros((old_piano_matrix.shape[0], 
+                                 old_piano_matrix.shape[1]))
+        piano_matrix[:,:] = old_piano_matrix[:,:,0]
+        piano_matrix[piano_matrix > 0] = 1
+
+        return piano_matrix
+
+    @staticmethod
+    def get_last_change_tensor(tensor):
+
+        """
+        tensor must be shape [batch_size, time, note]
+        """
+
+        look_back   = np.roll(tensor, shift=-1, axis=1)
+        is_the_same = look_back == tensor
+
+        change = np.zeros(is_the_same.shape)
+
+        for time in range(1,tensor.shape[1]):
+            curr_change = is_the_same[:,time,:]
+            x_p,y_p = np.where(curr_change == True)
+            x_0,y_0 = np.where(curr_change == False)
+            change[x_p,time,y_p] = change[x_p,time-1,y_p]+1
+            change[x_0,time,y_0] = 0
+
+        return change
+
+
+
+
+
+
+
         
     
