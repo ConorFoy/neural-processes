@@ -81,8 +81,8 @@ class TrainingExample(object):
             # target shape is (batch_size, test_tms, 78, 2)
 
             # Firsly split on target split
-            self.target_train = self.target[:,0:self.target_split,:]
-            self.target_pred  = self.target[:,self.target_split,:]
+            self.target_train = self.target[:,self.target_split:(self.target_split+10),:]
+            #self.target_pred  = self.target[:,self.target_split,:]
 
             tt_shape = self.target_train.shape
 
@@ -108,6 +108,7 @@ class TrainingExample(object):
 
             self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
+            self.target_train = np.insert(self.target_train, self.target_train.shape[3], self.target_split/100, axis=3)
 
         else:
 
@@ -232,7 +233,7 @@ class DataObject(DataLinks):
         
         examples_per_song = batch_size/songs_per_batch
 
-        target_split = random.randint(1, (self.test_tms)-2)
+        target_split = random.randint(0, (self.test_tms)-11)
         
         for idx, link in enumerate(random_songs):
             

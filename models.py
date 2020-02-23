@@ -57,7 +57,7 @@ def biaxial_target_model(training_batch, encoder_output_size = 10):
                                 encoder_output_size])[1,:,:]],
                             axis = -1),
                     name = "Encoder_concat_representation"
-    )
+    )(encoder)
 
     # Decoder
     propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(tf.expand_dims(x, 1), 1), [1, target_shape[1], target_shape[2], 1]),
@@ -77,11 +77,26 @@ def biaxial_target_model(training_batch, encoder_output_size = 10):
                    name = "Decoder_time_lstm_2",
                    return_sequences = True)(decoder)
 
-    decoder = Lambda(lambda x: tf.reshape(x, [target_shape[0], target_shape[2], 200]))(decoder)
+    decoder = Lambda(lambda x: tf.reshape(x, [-1, target_shape[2], 200]))(decoder)
+
 
     # NOTE AXIS
+    decoder = LSTM(units = 100,
+                   dropout = 0.5,
+                   name = "Decoder_note_lstm_1",
+                   return_sequences = True)(decoder)
 
+    decoder = LSTM(units = 1,
+                   dropout = 0.5,
+                   name = "Decoder_note_lstm_2",
+                   activation = 'sigmoid',
+                   return_sequences = True)(decoder)
 
+    decoder = Lambda(lambda x: tf.reshape(tf.squeeze(x), [target_shape[0], target_shape[1], target_shape[2]]))(decoder)
+
+    model = Model([input_context, input_target], decoder)
+
+    return model
 
 
 def simple_model(training_batch,
@@ -209,7 +224,6 @@ def get_encoder_simple(model):
     return model
 
 
-def generate_music()
 
 
 
