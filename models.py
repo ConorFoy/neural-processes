@@ -50,11 +50,11 @@ def biaxial_target_model(training_batch, encoder_output_size = 10):
     tf.reshape(x, 
                                [context_shape[0], 
                                 context_shape[1], 
-                                encoder_output_size])[0,:,:],
+                                encoder_output_size])[:,0,:],
     tf.reshape(x, 
                                [context_shape[0], 
                                 context_shape[1], 
-                                encoder_output_size])[1,:,:]],
+                                encoder_output_size])[:,1,:]],
                             axis = -1),
                     name = "Encoder_concat_representation"
     )(encoder)
