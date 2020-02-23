@@ -74,7 +74,7 @@ class TrainingExample(object):
             
             # Featurize context
 
-            self.context = np.transpose(self.context, perm = [1,0,2,3])
+            self.context = np.transpose(self.context, axes = [1,0,2,3])
             
 
             # Featurize target
