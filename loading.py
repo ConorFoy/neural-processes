@@ -83,7 +83,7 @@ class TrainingExample(object):
 
             # Firsly split on target split
             self.target_train = self.target[:,self.target_split:(self.target_split+10),:]
-            #self.target_pred  = self.target[:,self.target_split,:]
+            self.target_pred  = self.target[:,(self.target_split+1):(self.target_split+11),:]
 
             tt_shape = self.target_train.shape
 
@@ -103,6 +103,7 @@ class TrainingExample(object):
 
             # Now get rid of articulation
             self.target_train = DataObject.drop_articulation(self.target_train)
+            self.target_pred  = DataObject.drop_articulation(self.target_pred)
 
             # Now add last change variable
             last_change = DataObject.get_last_change_tensor(self.target_train)
