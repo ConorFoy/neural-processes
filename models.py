@@ -15,8 +15,8 @@ def biaxial_target_model(training_batch, encoder_output_size = 10):
     # ----------------- here define model (128, 16, 78, 82)
 
     input_context = Input(batch_shape = 
-                          (context_shape[0],  # num_of_contexts
-                           context_shape[1],  # batch_size
+                          (context_shape[0],  # batch_size
+                           context_shape[1],  # num_of_contexts
                            context_shape[2],  # timesteps
                            context_shape[3]), # note_size
                           name="Input_layer_context") # as above
