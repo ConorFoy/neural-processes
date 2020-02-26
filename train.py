@@ -1,10 +1,12 @@
 #!../testenv/bin/python3
 
 import pretty_midi
+import midi
 import numpy as np
-#import matplotlib.pyplot as plt
 from keras.models import Model
 from keras.layers import Dense, Input, Lambda, Concatenate, LSTM
+
+from keras.optimizers import Adam
 
 from keras import backend as K
 
@@ -15,17 +17,22 @@ import numpy as np
 import csv
 from sys import stdout
 import random
-from datetime import date
+
 # My code
 from loading import *
 from models import *
+from data import *
+from midi_to_statematrix import *
 
 
 def generate(train_batch):
     """a generator for batches, so model.fit_generator can be used. """
     while True:
-        new_batch = next(train_batch)
-        yield (new_batch.context, new_batch.target)
+        new_batch    = next(train_batch)
+        new_batch.featurize(use_biaxial = False)
+        yield ([tf.convert_to_tensor(new_batch.context, dtype = tf.float32), 
+                tf.convert_to_tensor(new_batch.target_train, dtype = tf.float32)], 
+               tf.convert_to_tensor(new_batch.target_pred, dtype = tf.float32))
 
 if __name__ == '__main__':
 
@@ -35,14 +42,17 @@ if __name__ == '__main__':
 	file = 'maestro-v2.0.0/maestro-v2.0.0.csv'
 
 	# Call data class
-	data = DataObject(file, what_type = 'train', train_sec = 15, test_sec = 5, fs = 50, window_size = 15)
+	data = DataObject(file, what_type = 'train', train_tms = 100, test_tms = 100, fs = 20, window_size = 15)
+
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 128, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
-	model = simple_model(curr_batch)
-	model.compile(loss = tf.keras.losses.BinaryCrossentropy(), optimizer = 'adam')
+	curr_batch.featurize(use_biaxial = False)
+
+	model = biaxial_target_model_oneseq(curr_batch)
+	model.compile(loss = tf.keras.losses.BinaryCrossentropy(), optimizer = Adam(learning_rate=0.001))
 
 	model.summary()
 
@@ -61,6 +71,6 @@ if __name__ == '__main__':
 
 	with open(filename+'.txt', 'w+') as f:
 		for element in history.history['loss']:
-			f.write('\n'+element)
+			f.write('\n'+str(element))
 
 
