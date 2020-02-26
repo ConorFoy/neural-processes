@@ -33,7 +33,7 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
     encoder = Lambda(lambda x: tf.reshape(x, [-1,x.shape[2],x.shape[3]]), 
                                       name="Encoder_layer_1")(encoder)
     encoder = LSTM(units = 512, 
-                   dropout = 0.5, 
+                   dropout = 0.25, 
                    name = 'Encoder_lstm_1', 
                    return_sequences = False)(encoder)
     encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
@@ -70,11 +70,11 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
     decoder = Lambda(lambda x: tf.reshape(tf.transpose(x, perm = [0,2,1,3]), 
                                           [-1,target_shape[1],target_shape[3]+2*encoder_output_size]))(propagate_in_time)
     decoder = LSTM(units = 200,
-                   dropout = 0.5, 
+                   dropout = 0.25, 
                    name = "Decoder_time_lstm_1",
                    return_sequences = True)(decoder)
     decoder = LSTM(units = 200, 
-                   dropout = 0.5,
+                   dropout = 0.25,
                    name = "Decoder_time_lstm_2",
                    return_sequences = True)(decoder)
 
@@ -83,12 +83,12 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
 
     # NOTE AXIS
     decoder = LSTM(units = 100,
-                   dropout = 0.5,
+                   dropout = 0.25,
                    name = "Decoder_note_lstm_1",
                    return_sequences = True)(decoder)
 
     decoder = LSTM(units = 1,
-                   dropout = 0.5,
+                   dropout = 0.25,
                    name = "Decoder_note_lstm_2",
                    activation = 'sigmoid',
                    return_sequences = True)(decoder)

@@ -47,13 +47,13 @@ if __name__ == '__main__':
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 128, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = False)
 
-	model = biaxial_target_model_oneseq(curr_batch)
+	model = biaxial_target_model_oneseq(curr_batch, encoder_output_size = 20)
 	model.compile(loss = tf.keras.losses.BinaryCrossentropy(), optimizer = Adam(learning_rate=0.001))
 
 	model.summary()
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 	history = model.fit_generator(
                     generate(train_batch),
                     steps_per_epoch=1024,
-                    epochs=10)
+                    epochs=2)
 
 
 	filename = date.today()

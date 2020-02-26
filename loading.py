@@ -257,14 +257,14 @@ class DataObject(DataLinks):
                 
                 start        = random.randint(self.train_tms, timesteps-(self.train_tms+self.test_tms))
                 
-                l_batch_data_context.append(DataObject.drop_articulation3d(piano_matrix[(start-self.train_tms):start, :]))
-                r_batch_data_context.append(DataObject.drop_articulation3d(piano_matrix[(start+self.test_tms):(start+self.train_tms+self.test_tms),:]))
+                l_batch_data_context.append(piano_matrix[(start-self.train_tms):start, :])
+                r_batch_data_context.append(piano_matrix[(start+self.test_tms):(start+self.train_tms+self.test_tms),:])
                 batch_data_target.append(piano_matrix[start:(start+self.test_tms), :])
                 batch_data_link.append(link)
                 batch_data_starts.append(start)
 
-        batch_data = TrainingExample(np.stack([np.array(l_batch_data_context), 
-                                               np.array(r_batch_data_context)]),
+        batch_data = TrainingExample(np.stack([DataObject.drop_articulation(np.array(l_batch_data_context)), 
+                                               DataObject.drop_articulation(np.array(r_batch_data_context))]),
                                      np.array(batch_data_target),
                                      batch_data_link,
                                      batch_data_starts,
