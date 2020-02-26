@@ -106,11 +106,13 @@ class TrainingExample(object):
             self.target_pred  = DataObject.drop_articulation(self.target_pred)
 
             # Now add last change variable
-            last_change = DataObject.get_last_change_tensor(self.target_train)
+            last_change = DataObject.get_last_change_tensor(DataObject.drop_articulation(self.target))
+            last_change = last_change[:,self.target_split:(self.target_split+10),:]
 
             self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
-            self.target_train = np.insert(self.target_train, self.target_train.shape[3], self.target_split/100, axis=3)
+            #self.target_train = np.insert(self.target_train, self.target_train.shape[3], self.target_split/100, axis=3)
+            self.target_train = DataObject.add_time_information(self.target_train, start = self.target_split)
 
         else:
 
