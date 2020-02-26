@@ -324,7 +324,7 @@ class DataObject(DataLinks):
         tensor must be shape [batch_size, time, note]
         """
 
-        look_back   = np.roll(tensor, shift=-1, axis=1)
+        look_back   = np.roll(tensor, shift=1, axis=1)
         is_the_same = look_back == tensor
 
         change = np.zeros(is_the_same.shape)
