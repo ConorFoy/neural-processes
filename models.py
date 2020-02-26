@@ -23,7 +23,7 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
     
     input_target  = Input(batch_shape = 
                           (target_shape[0],  # batch_size
-                           target_shape[1],  # timesteps
+                           None,  # timesteps
                            target_shape[2],  # note_size
                            target_shape[3]), # note_features
                           name="Input_layer_target")
@@ -60,14 +60,14 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
     )(encoder)
 
     # Decoder
-    propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(tf.expand_dims(x, 1), 1), [1, target_shape[1], target_shape[2], 1]),
+    propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(tf.expand_dims(x, 1), 1), [1, input_target.shape[1], target_shape[2], 1]),
                                name = "Encoder_output_reshape")(encoder)
     propagate_in_time = Lambda(lambda x: tf.concat([input_target, x], axis = -1),
                                name = "Decoder_layer_1")(propagate_in_time)
 
     # TIME AXIS
     decoder = Lambda(lambda x: tf.reshape(tf.transpose(x, perm = [0,2,1,3]), 
-                                          [-1,target_shape[1],target_shape[3]+2*encoder_output_size]))(propagate_in_time)
+                                          [-1,input_target.shape[1],target_shape[3]+2*encoder_output_size]))(propagate_in_time)
     decoder = LSTM(units = 200,
                    dropout = 0.5, 
                    name = "Decoder_time_lstm_1",
@@ -92,7 +92,7 @@ def biaxial_target_model_oneseq(training_batch, encoder_output_size = 10):
                    activation = 'sigmoid',
                    return_sequences = True)(decoder)
 
-    decoder = Lambda(lambda x: tf.reshape(tf.squeeze(x), [target_shape[0], target_shape[1], target_shape[2]]))(decoder)
+    decoder = Lambda(lambda x: tf.reshape(tf.squeeze(x), [target_shape[0], input_target.shape[1], target_shape[2]]))(decoder)
     decoder = Lambda(lambda x: x[:,-1,:])(decoder)
 
     model = Model([input_context, input_target], decoder)
