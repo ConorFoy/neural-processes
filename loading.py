@@ -133,7 +133,7 @@ class TrainingExample(object):
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
 
             # Add time information
-            self.target_train = DataObject.add_time_information(self.target_train)
+            self.target_train = DataObject.add_time_information(self.target_train, start = 0)
 
 
 
@@ -346,9 +346,9 @@ class DataObject(DataLinks):
         return change
 
     @staticmethod
-    def add_time_information(tensor):
+    def add_time_information(tensor, start = 0):
 
-        timestep = np.arange(1,(tensor.shape[1])+1)
+        timestep = (np.arange(1,(tensor.shape[1])+1) + start)/100
         timestep = np.tile(timestep, (tensor.shape[0], tensor.shape[2], 1)) 
         timestep = np.transpose(timestep, [0,2,1])
 
