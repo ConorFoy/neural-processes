@@ -29,6 +29,7 @@ def generate(train_batch):
     """a generator for batches, so model.fit_generator can be used. """
     while True:
         new_batch    = next(train_batch)
+        new_batch.target_split = 50
         new_batch.featurize(use_biaxial = False)
         yield ([tf.convert_to_tensor(new_batch.context, dtype = tf.float32), 
                 tf.convert_to_tensor(new_batch.target_train, dtype = tf.float32)], 
@@ -49,6 +50,7 @@ if __name__ == '__main__':
 	train_batch = Batch(data, batch_size = 128, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
+	curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = False)
 
 	model = biaxial_target_model_oneseq(curr_batch)
