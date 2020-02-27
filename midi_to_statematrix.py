@@ -81,7 +81,7 @@ def noteStateMatrixToMidi(statematrix, name="example"):
             if p[0] == 1:
                 if n[0] == 0:
                     offNotes.append(i)
-                elif n[1] == 1:
+                elif n[0] == 1:
                     offNotes.append(i)
                     onNotes.append(i)
             elif n[0] == 1:
