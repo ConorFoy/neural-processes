@@ -38,7 +38,7 @@ def generate(train_batch):
     while True:
         new_batch    = next(train_batch)
         new_batch.target_split = 50
-        new_batch.featurize(use_biaxial = True
+        new_batch.featurize(use_biaxial = True)
         yield ([tf.convert_to_tensor(new_batch.context, dtype = tf.float32), 
                 tf.convert_to_tensor(new_batch.target_train, dtype = tf.float32)], 
                tf.convert_to_tensor(new_batch.target_pred, dtype = tf.float32))

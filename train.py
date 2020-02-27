@@ -61,13 +61,12 @@ if __name__ == '__main__':
 	history = model.fit_generator(
                     generate(train_batch),
                     steps_per_epoch=1024,
-                    epochs=2)
+                    epochs=10)
 
 
-	filename = date.today()
 
 	# dd/mm/YY
-	filename = 'training_'+filename.strftime("%d-%m-%Y")
+	filename = 'biaxial_nofeat_10epoch'
 
 	model.save_weights(filename+'.h5')
 
