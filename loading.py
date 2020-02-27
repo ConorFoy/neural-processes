@@ -68,7 +68,7 @@ class TrainingExample(object):
     def __len__(self):
         return len(self.link)
 
-    def featurize(self, use_biaxial = True):
+    def featurize(self, use_biaxial = True, out_seq = True):
 
         if use_biaxial == True:
             
@@ -116,26 +116,51 @@ class TrainingExample(object):
 
         else:
 
-            # Featurize context
-            self.context = np.transpose(self.context, axes = [1,0,2,3])
+            if out_seq == False:
 
-            # Firsly split on target split
-            self.target_train = self.target[:,0:self.target_split,:]
-            self.target_pred  = self.target[:,self.target_split,:]
+                # Featurize context
+                self.context = np.transpose(self.context, axes = [1,0,2,3])
 
-            # Now get rid of articulation
-            self.target_train = DataObject.drop_articulation(self.target_train)
-            self.target_pred = DataObject.drop_articulation3d(self.target_pred)
+                # Firsly split on target split
+                self.target_train = self.target[:,0:self.target_split,:]
+                self.target_pred  = self.target[:,self.target_split,:]
 
-            # Now add last change variable
-            last_change = DataObject.get_last_change_tensor(self.target_train)
+                # Now get rid of articulation
+                self.target_train = DataObject.drop_articulation(self.target_train)
+                self.target_pred = DataObject.drop_articulation3d(self.target_pred)
 
-            self.target_train = np.expand_dims(self.target_train, axis = 3)
+                # Now add last change variable
+                last_change = DataObject.get_last_change_tensor(self.target_train)
 
-            self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
+                self.target_train = np.expand_dims(self.target_train, axis = 3)
 
-            # Add time information
-            self.target_train = DataObject.add_time_information(self.target_train, start = 0)
+                self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
+
+                # Add time information
+                self.target_train = DataObject.add_time_information(self.target_train, start = 0)
+
+            elif out_seq == True:
+
+                # Featurize context
+                self.context = np.transpose(self.context, axes = [1,0,2,3])
+
+                # Firsly split on target split
+                self.target_train = self.target[:,0:-1,:]
+                self.target_pred  = self.target[:,1:,:]
+
+                # Now get rid of articulation
+                self.target_train = DataObject.drop_articulation(self.target_train)
+                self.target_pred = DataObject.drop_articulation(self.target_pred)
+
+                # Now add last change variable
+                last_change = DataObject.get_last_change_tensor(self.target_train)
+
+                self.target_train = np.expand_dims(self.target_train, axis = 3)
+
+                self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
+
+                # Add time information
+                self.target_train = DataObject.add_time_information(self.target_train, start = 0)
 
 
 
