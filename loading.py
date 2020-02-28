@@ -82,8 +82,8 @@ class TrainingExample(object):
             # target shape is (batch_size, test_tms, 78, 2)
 
             # Firsly split on target split
-            self.target_train = self.target[:,self.target_split:(self.target_split+10),:]
-            self.target_pred  = self.target[:,(self.target_split+1):(self.target_split+11),:]
+            self.target_train = self.target[:,self.target_split:(self.target_split+15),:]
+            self.target_pred  = self.target[:,(self.target_split+1):(self.target_split+16),:]
 
             tt_shape = self.target_train.shape
 
@@ -107,7 +107,7 @@ class TrainingExample(object):
 
             # Now add last change variable
             last_change = DataObject.get_last_change_tensor(DataObject.drop_articulation(self.target))
-            last_change = last_change[:,self.target_split:(self.target_split+10),:]
+            last_change = last_change[:,self.target_split:(self.target_split+15),:]
 
             self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)

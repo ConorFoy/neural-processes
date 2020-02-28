@@ -78,14 +78,27 @@ def noteStateMatrixToMidi(statematrix, name="example"):
         for i in range(span):
             n = state[i]
             p = prevstate[i]
+
             if p[0] == 1:
                 if n[0] == 0:
                     offNotes.append(i)
                 elif n[0] == 1:
-                    offNotes.append(i)
+                    pass
+            elif p[0] == 0:
+                if n[0] == 0:
+                    pass
+                elif n[0] == 1:
                     onNotes.append(i)
-            elif n[0] == 1:
-                onNotes.append(i)
+
+
+            #if p[0] == 1:
+            #    if n[0] == 0:
+            #        offNotes.append(i)
+            #    elif n[0] == 1:
+            #        offNotes.append(i)
+            #        onNotes.append(i)
+            #elif n[0] == 1:
+            #    onNotes.append(i)
         for note in offNotes:
             track.append(midi.NoteOffEvent(tick=(time-lastcmdtime)*tickscale, pitch=note+lowerBound))
             lastcmdtime = time
