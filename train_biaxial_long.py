@@ -73,7 +73,7 @@ if __name__ == '__main__':
     					filepath=checkpoint_path, 
     					verbose=1, 
     					save_weights_only=True,
-    					period=1)
+    					save_freq=1)
 
 	# Save the weights using the `checkpoint_path` format
 	model.save_weights(checkpoint_path.format(epoch=0))
