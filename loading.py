@@ -58,12 +58,13 @@ class DataLinks(object):
 
 class TrainingExample(object):
     
-    def __init__(self, context, target, link, start, target_split):
+    def __init__(self, context, target, link, start, target_split, window_size):
         self.context = context
         self.target  = target
         self.target_split = target_split
         self.link    = link
         self.start   = start
+        self.window_size = window_size
 
     def __len__(self):
         return len(self.link)
@@ -82,8 +83,8 @@ class TrainingExample(object):
             # target shape is (batch_size, test_tms, 78, 2)
 
             # Firsly split on target split
-            self.target_train = self.target[:,self.target_split:(self.target_split+15),:]
-            self.target_pred  = self.target[:,(self.target_split+1):(self.target_split+16),:]
+            self.target_train = self.target[:,self.target_split:(self.target_split+self.window_size),:]
+            self.target_pred  = self.target[:,(self.target_split+1):(self.target_split+self.window_size+1),:]
 
             tt_shape = self.target_train.shape
 
@@ -107,7 +108,7 @@ class TrainingExample(object):
 
             # Now add last change variable
             last_change = DataObject.get_last_change_tensor(DataObject.drop_articulation(self.target))
-            last_change = last_change[:,self.target_split:(self.target_split+15),:]
+            last_change = last_change[:,self.target_split:(self.target_split+self.window_size),:]
 
             self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
@@ -272,7 +273,7 @@ class DataObject(DataLinks):
         
         examples_per_song = batch_size/songs_per_batch
 
-        target_split = random.randint(0, (self.test_tms)-20)
+        target_split = random.randint(0, (self.test_tms)-self.window_size)
         
         for idx, link in enumerate(random_songs):
             
@@ -296,6 +297,7 @@ class DataObject(DataLinks):
                                      batch_data_link,
                                      batch_data_starts,
                                      target_split,
+                                     self.window_size,
         )
         
         return batch_data

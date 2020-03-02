@@ -58,6 +58,18 @@ if __name__ == '__main__':
 
 	model.summary()
 
+	checkpoint_path = 'biaxial_window_feature_15_window.h5'
+
+	cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    					filepath=checkpoint_path, 
+    					verbose=1, 
+    					save_weights_only=True,
+    					callbacks=[cp_callback],
+    					save_freq=1)
+
+	# Save the weights using the `checkpoint_path` format
+	model.save_weights(checkpoint_path.format(epoch=0))
+
 	history = model.fit_generator(
                     generate(train_batch),
                     steps_per_epoch=1024,
