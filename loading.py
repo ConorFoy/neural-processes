@@ -13,6 +13,7 @@ import numpy as np
 import csv
 from sys import stdout
 import random
+import copy
 
 from midi_to_statematrix import *
 from data import *
@@ -327,7 +328,7 @@ class DataObject(DataLinks):
         this method is only for 4-dimensional tensors
         """
 
-        old_piano_matrix        = tensor
+        old_piano_matrix        = copy.deepcopy(tensor)
         old_piano_matrix[:,:,:,0] = old_piano_matrix[:,:,:,0]+old_piano_matrix[:,:,:,1]
         piano_matrix = np.zeros((old_piano_matrix.shape[0], 
                                  old_piano_matrix.shape[1],
@@ -344,7 +345,7 @@ class DataObject(DataLinks):
         this method is only for 3-dimensional tensors
         """
 
-        old_piano_matrix        = tensor
+        old_piano_matrix        = copy.deepcopy(tensor)
         old_piano_matrix[:,:,0] = old_piano_matrix[:,:,0]+old_piano_matrix[:,:,1]
         piano_matrix = np.zeros((old_piano_matrix.shape[0], 
                                  old_piano_matrix.shape[1]))
@@ -360,7 +361,7 @@ class DataObject(DataLinks):
         tensor must be shape [batch_size, time, note]
         """
 
-        look_back   = np.roll(tensor, shift=1, axis=1)
+        look_back   = np.roll(copy.deepcopy(tensor), shift=1, axis=1)
         is_the_same = look_back == tensor
 
         change = np.zeros(is_the_same.shape)
