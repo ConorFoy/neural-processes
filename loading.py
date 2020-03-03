@@ -66,6 +66,7 @@ class TrainingExample(object):
         self.link    = link
         self.start   = start
         self.window_size = window_size
+        self.test_tms = test_tms
 
     def __len__(self):
         return len(self.link)
@@ -114,7 +115,7 @@ class TrainingExample(object):
             self.target_train = np.append(features, np.expand_dims(self.target_train, axis = 3), axis = 3)
             self.target_train = np.append(self.target_train, np.expand_dims(last_change, axis = 3), axis = 3)
             #self.target_train = np.insert(self.target_train, self.target_train.shape[3], self.target_split/100, axis=3)
-            self.target_train = DataObject.add_time_information(self.target_train, start = self.target_split)
+            self.target_train = DataObject.add_time_information(self.target_train, start = self.target_split, size = self.test_tms)
 
         else:
 
@@ -299,6 +300,7 @@ class DataObject(DataLinks):
                                      batch_data_starts,
                                      target_split,
                                      self.window_size,
+                                     self.test_tms,
         )
         
         return batch_data
@@ -376,9 +378,9 @@ class DataObject(DataLinks):
         return change
 
     @staticmethod
-    def add_time_information(tensor, start = 0):
+    def add_time_information(tensor, start = 0, size = 100):
 
-        timestep = (np.arange(1,(tensor.shape[1])+1) + start)/100
+        timestep = (np.arange(1,(tensor.shape[1])+1) + start)/size
         timestep = np.tile(timestep, (tensor.shape[0], tensor.shape[2], 1)) 
         timestep = np.transpose(timestep, [0,2,1])
 
