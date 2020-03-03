@@ -275,7 +275,7 @@ class DataObject(DataLinks):
         
         examples_per_song = batch_size/songs_per_batch
 
-        target_split = random.randint(0, (self.test_tms)-self.window_size)
+        target_split = random.randint(0, (self.test_tms-self.window_size - 1))
         
         for idx, link in enumerate(random_songs):
             
