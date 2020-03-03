@@ -51,29 +51,29 @@ if __name__ == '__main__':
 	file = 'maestro-v2.0.0/maestro-v2.0.0.csv'
 
 	# Call data class
-	data = DataObject(file, what_type = 'train', train_tms = 100, test_tms = 100, fs = 20, window_size = 15)
+	data = DataObject(file, what_type = 'train', train_tms = 50, test_tms = 50, fs = 20, window_size = 15)
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 32, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
-	model = biaxial_target_model(curr_batch, encoder_output_size = 20)
-	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0008))
+	model = biaxial_target_conv2d_model(curr_batch, encoder_output_size = 78)
+	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0004))
 
 	model.summary()
 
 
-	checkpoint_path = 'biaxial_window_feature_15_window.h5'
+	checkpoint_path = 'biaxial_window_feature_15_window_conv2d.h5'
 
 	cp_callback = tf.keras.callbacks.ModelCheckpoint(
     					filepath=checkpoint_path, 
     					verbose=1, 
     					save_weights_only=True,
-    					save_freq=1)
+    					save_freq=128)
 
 	# Save the weights using the `checkpoint_path` format
 	model.save_weights(checkpoint_path.format(epoch=0))
@@ -86,12 +86,10 @@ if __name__ == '__main__':
                     epochs=15)
 
 
-	filename = date.today()
-
 	# dd/mm/YY
-	filename = 'biaxial_window_feature_15_window'+filename.strftime("%d-%m-%Y")
+	filename = 'biaxial_window_feature_15_window_conv2d'
 
-	model.save_weights(filename+'.h5')
+	model.save_weights(checkpoint_path)
 
 	with open(filename+'.txt', 'w+') as f:
 		for element in history.history['loss']:
