@@ -59,7 +59,7 @@ class DataLinks(object):
 
 class TrainingExample(object):
     
-    def __init__(self, context, target, link, start, target_split, window_size):
+    def __init__(self, context, target, link, start, target_split, window_size, test_tms):
         self.context = context
         self.target  = target
         self.target_split = target_split
