@@ -221,11 +221,11 @@ def biaxial_target_conv2d_model(training_batch, encoder_output_size = 78):
                      kernel_size = (int(context_shape[2]/5), int(context_shape[3]/7)), 
                      name = 'Encoder_conv_1')(encoder)
     encoder = MaxPooling2D(pool_size=(3, 3))(encoder)
-    encoder = Conv2D(filters = 32, 
+    encoder = Conv2D(filters = 64, 
                      kernel_size = (int(context_shape[2]/5), int(context_shape[3]/7)), 
                      name = 'Encoder_conv_2')(encoder)  
     encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
-    encoder = Dense(encoder_output_size, activation = 'softmax', name = "Encoder_output")(encoder)
+    encoder = Dense(encoder_output_size, activation = 'sigmoid', name = "Encoder_output")(encoder)
 
     #encoder = Lambda(lambda x: K.mean(tf.reshape(x, 
                                       #[context_shape[0], 
