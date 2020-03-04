@@ -225,7 +225,7 @@ def biaxial_pn_encoder_concat_conv2d(training_batch, encoder_output_size = 10):
                      kernel_size = (int(context_shape[2]/5), int(context_shape[3]/7)), 
                      name = 'Encoder_conv_2')(encoder) 
     encoder = Flatten()(encoder) 
-    encoder = Dense(200, activation = 'relu', name = 'Encoder_dense_1')(encoder)
+    encoder = Dense(256, activation = 'relu', name = 'Encoder_dense_1')(encoder)
     encoder = Dense(78, activation = 'softmax', name = "Encoder_output")(encoder)
     #encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
     #encoder = Dense(78, activation = 'softmax', name = "Encoder_output")(encoder)

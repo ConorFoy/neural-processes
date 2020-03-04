@@ -23,6 +23,8 @@ from loading import *
 from models import *
 from data import *
 from midi_to_statematrix import *
+import argparse
+
 
 
 def my_binary_loss_seq(y_true, y_pred):
@@ -45,6 +47,13 @@ def generate(train_batch):
 
 if __name__ == '__main__':
 
+	parser = argparse.ArgumentParser(description='Train Tiny-ImageNet Models')
+
+    parser.add_argument('-lr','--lear', help='learning rate')
+    parser.add_argument('-bs','--bath', help='batch size')
+
+    args = vars(parser.parse_args())
+
 	print("TensorFlow version: {}".format(tf.__version__))
 	print("GPU is available: {}".format(tf.test.is_gpu_available()))
 
@@ -55,14 +64,14 @@ if __name__ == '__main__':
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 32, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = int(args[bath]), songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
 	model = biaxial_pn_encoder_concat_conv2d(curr_batch, encoder_output_size = 78)
-	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0001))
+	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=float(args['lear'])))
 
 	model.summary()
 
