@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = int(args[bath]), songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = int(args['bath']), songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	#curr_batch.target_split = 50
