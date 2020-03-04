@@ -49,10 +49,10 @@ if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser(description='Train Tiny-ImageNet Models')
 
-    parser.add_argument('-lr','--lear', help='learning rate')
-    parser.add_argument('-bs','--bath', help='batch size')
+	parser.add_argument('-lr','--lear', help='learning rate')
+	parser.add_argument('-bs','--bath', help='batch size')
 
-    args = vars(parser.parse_args())
+	args = vars(parser.parse_args())
 
 	print("TensorFlow version: {}".format(tf.__version__))
 	print("GPU is available: {}".format(tf.test.is_gpu_available()))
