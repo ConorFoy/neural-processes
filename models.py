@@ -221,7 +221,7 @@ def biaxial_target_model_deep_lstm(training_batch, encoder_output_size = 10):
                    return_sequences = True)(encoder)
     encoder = LSTM(units = 512, 
                    dropout = 0.25, 
-                   name = 'Encoder_lstm_1', 
+                   name = 'Encoder_lstm_2', 
                    return_sequences = False)(encoder)
     encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
     encoder = Dense(encoder_output_size, activation = 'softmax', name = "Encoder_output")(encoder)
