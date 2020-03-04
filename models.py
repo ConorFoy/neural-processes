@@ -191,6 +191,110 @@ def biaxial_target_model_meanrep(training_batch, encoder_output_size = 10):
 
     return model
 
+def biaxial_pn_encoder_concat_conv2d(training_batch, encoder_output_size = 10):
+
+    context_shape = training_batch.context.shape # [num_context,batch_size,note_size]
+    target_shape  = training_batch.target_train.shape  # [batch_size, timesteps, note_size, note_features]
+
+    # ----------------- here define model (128, 16, 78, 82)
+
+    input_context = Input(batch_shape = 
+                          (context_shape[0],  # batch_size
+                           context_shape[1],  # num_of_contexts
+                           context_shape[2],  # timesteps
+                           context_shape[3]), # note_size
+                          name="Input_layer_context") # as above
+    
+    input_target  = Input(batch_shape = 
+                          (target_shape[0],  # batch_size
+                           target_shape[1],  # timesteps
+                           target_shape[2],  # note_size
+                           target_shape[3]), # note_features
+                          name="Input_layer_target")
+
+    encoder = input_context
+    encoder = Lambda(lambda x: tf.reshape(x, [-1,x.shape[2],x.shape[3]]), 
+                                      name="Encoder_layer_1")(encoder)
+    encoder = Lambda(lambda x: tf.expand_dims(x, -1))(encoder)
+
+    encoder = Conv2D(filters = 64, 
+                     kernel_size = (int(context_shape[2]/5), int(context_shape[3]/7)), 
+                     name = 'Encoder_conv_1')(encoder)
+    encoder = MaxPooling2D(pool_size=(3, 3))(encoder)
+    encoder = Conv2D(filters = 64, 
+                     kernel_size = (int(context_shape[2]/5), int(context_shape[3]/7)), 
+                     name = 'Encoder_conv_2')(encoder) 
+    encoder = Flatten()(encoder) 
+    encoder = Dense(200, activation = 'relu', name = 'Encoder_dense_1')(encoder)
+    encoder = Dense(78, activation = 'softmax', name = "Encoder_output")(encoder)
+    #encoder = Dense(512, activation = 'relu', name = 'Encoder_dense_1')(encoder)
+    #encoder = Dense(78, activation = 'softmax', name = "Encoder_output")(encoder)
+
+    #encoder = Lambda(lambda x: K.mean(tf.reshape(x, 
+                                      #[context_shape[0], 
+                                       #context_shape[1], 
+                                       #encoder_output_size]),
+                               #axis = 0),
+                    #name = "Encoder_mean_representation"
+    #)
+    encoder = Lambda(lambda x: tf.concat([
+
+    tf.expand_dims(
+        tf.reshape(x, 
+                               [context_shape[0], 
+                                context_shape[1], 
+                                context_shape[3]])[:,0,:],
+        -1),
+    tf.expand_dims(
+        tf.reshape(x, 
+                               [context_shape[0], 
+                                context_shape[1], 
+                                context_shape[3]])[:,1,:],
+        -1)
+    ],
+                            axis = -1),
+                    name = "Encoder_concat_representation"
+    )(encoder)
+
+    # Decoder
+    propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1, target_shape[1], 1, 1]),
+                               name = "Encoder_output_reshape")(encoder)
+    propagate_in_time = Lambda(lambda x: tf.concat([input_target, x], axis = -1),
+                               name = "Decoder_layer_1")(propagate_in_time)
+
+    # TIME AXIS
+    decoder = Lambda(lambda x: tf.reshape(tf.transpose(x, perm = [0,2,1,3]), 
+                                          [-1,target_shape[1],target_shape[3]+2]))(propagate_in_time)
+    decoder = LSTM(units = 200,
+                   dropout = 0.2, 
+                   name = "Decoder_time_lstm_1",
+                   return_sequences = True)(decoder)
+    decoder = LSTM(units = 200, 
+                   dropout = 0.2,
+                   name = "Decoder_time_lstm_2",
+                   return_sequences = True)(decoder)
+
+    decoder = Lambda(lambda x: tf.reshape(x, [-1, target_shape[2], 200]))(decoder)
+
+
+    # NOTE AXIS
+    decoder = LSTM(units = 100,
+                   dropout = 0.2,
+                   name = "Decoder_note_lstm_1",
+                   return_sequences = True)(decoder)
+
+    decoder = LSTM(units = 1,
+                   dropout = 0.2,
+                   name = "Decoder_note_lstm_2",
+                   activation = 'sigmoid',
+                   return_sequences = True)(decoder)
+
+    decoder = Lambda(lambda x: tf.reshape(tf.squeeze(x), [target_shape[0], target_shape[1], target_shape[2]]))(decoder)
+
+    model = Model([input_context, input_target], decoder)
+
+    return model
+
 def biaxial_target_model(training_batch, encoder_output_size = 10):
 
     context_shape = training_batch.context.shape # [num_context,batch_size,note_size]

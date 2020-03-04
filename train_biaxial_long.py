@@ -55,25 +55,25 @@ if __name__ == '__main__':
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 32, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
-	model = biaxial_target_model_meanrep(curr_batch, encoder_output_size = 78)
-	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0008))
+	model = biaxial_pn_encoder_concat_conv2d(curr_batch, encoder_output_size = 78)
+	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0001))
 
 	model.summary()
 
 
-	checkpoint_path = 'biaxial_window_feature_15_window_78_encoder_size.h5'
+	checkpoint_path = 'biaxial_pn_encoder_concat_conv2d.h5'
 
 	cp_callback = tf.keras.callbacks.ModelCheckpoint(
     					filepath=checkpoint_path, 
     					verbose=1, 
     					save_weights_only=True,
-    					save_freq=128)
+    					save_freq=32*100)
 
 	# Save the weights using the `checkpoint_path` format
 	model.save_weights(checkpoint_path.format(epoch=0))
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
 
 	# dd/mm/YY
-	filename = 'biaxial_window_feature_15_window_conv2d'
+	filename = 'biaxial_pn_encoder_concat_conv2d'
 
 	model.save_weights(checkpoint_path)
 
