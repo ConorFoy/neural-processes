@@ -55,19 +55,19 @@ if __name__ == '__main__':
 
 
 	# Create a batch class which we will iterate over
-	train_batch = Batch(data, batch_size = 32, songs_per_batch = 4)
+	train_batch = Batch(data, batch_size = 64, songs_per_batch = 4)
 
 	curr_batch = train_batch.data
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
-	model = biaxial_target_model_deep_lstm(curr_batch, encoder_output_size = 78)
-	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0005))
+	model = biaxial_target_model_meanrep(curr_batch, encoder_output_size = 78)
+	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0008))
 
 	model.summary()
 
 
-	checkpoint_path = 'biaxial_window_feature_15_window_conv2d.h5'
+	checkpoint_path = 'biaxial_window_feature_15_window_78_encoder_size.h5'
 
 	cp_callback = tf.keras.callbacks.ModelCheckpoint(
     					filepath=checkpoint_path, 
