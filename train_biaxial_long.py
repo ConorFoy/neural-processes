@@ -61,8 +61,8 @@ if __name__ == '__main__':
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
-	model = biaxial_target_conv2d_model(curr_batch, encoder_output_size = 78)
-	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0004))
+	model = biaxial_target_model_deep_lstm(curr_batch, encoder_output_size = 78)
+	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=0.0005))
 
 	model.summary()
 
