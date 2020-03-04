@@ -136,8 +136,8 @@ def biaxial_target_model_meanrep(training_batch, encoder_output_size = 10):
                                        context_shape[1], 
                                        encoder_output_size]),
                                axis = 0),
-                    name = "Encoder_mean_representation"
-    )
+                    name = "Encoder_mean_representation",
+    )(encoder)
     #encoder = Lambda(lambda x: tf.concat([
 
     #tf.reshape(x, 
