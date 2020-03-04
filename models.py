@@ -160,7 +160,7 @@ def biaxial_target_model_meanrep(training_batch, encoder_output_size = 10):
 
     # TIME AXIS
     decoder = Lambda(lambda x: tf.reshape(tf.transpose(x, perm = [0,2,1,3]), 
-                                          [-1,target_shape[1],target_shape[3]+2*encoder_output_size]))(propagate_in_time)
+                                          [-1,target_shape[1],target_shape[3]+encoder_output_size]))(propagate_in_time)
     decoder = LSTM(units = 200,
                    dropout = 0.2, 
                    name = "Decoder_time_lstm_1",
