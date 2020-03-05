@@ -70,13 +70,13 @@ if __name__ == '__main__':
 	#curr_batch.target_split = 50
 	curr_batch.featurize(use_biaxial = True)
 
-	model = biaxial_pn_encoder_concat_conv2d(curr_batch, encoder_output_size = 78)
+	model = biaxial_pn_encoder_concat_deeplstm(curr_batch, encoder_output_size = 32)
 	model.compile(loss = my_binary_loss_seq, optimizer = Adam(learning_rate=float(args['lear'])))
 
 	model.summary()
 
 
-	checkpoint_path = 'biaxial_pn_encoder_concat_conv2d.h5'
+	checkpoint_path = 'biaxial_pn_encoder_concat_deeplstm.h5'
 
 	cp_callback = tf.keras.callbacks.ModelCheckpoint(
     					filepath=checkpoint_path, 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
 
 	# dd/mm/YY
-	filename = 'biaxial_pn_encoder_concat_conv2d'
+	filename = 'biaxial_pn_encoder_concat_deeplstm'
 
 	model.save_weights(checkpoint_path)
 
