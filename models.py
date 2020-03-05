@@ -386,7 +386,7 @@ def biaxial_target_model(training_batch, encoder_output_size = 10):
 
     return model
 
-def biaxial_pn_encoder_concat_deeplstm(training_batch, encoder_output_size = 10):
+def biaxial_pn_encoder_concat_deeplstm(training_batch, encoder_output_size = 32):
 
     context_shape = training_batch.context.shape # [num_context,batch_size,note_size]
     target_shape  = training_batch.target_train.shape  # [batch_size, timesteps, note_size, note_features]
@@ -410,7 +410,9 @@ def biaxial_pn_encoder_concat_deeplstm(training_batch, encoder_output_size = 10)
     encoder = input_context
     encoder = Lambda(lambda x: tf.reshape(x, [-1,x.shape[2],x.shape[3]]), 
                                       name="Encoder_layer_1")(encoder)
-
+    encoder = Lambda(lambda x: tf.transpose(tf.expand_dims(x, -1), perm = [0,2,1,3]))(encoder)
+    encoder = Lambda(lambda x: tf.reshape(x, [-1, x.shape[2], x.shape[3]]))(encoder)
+    
     encoder = LSTM(units = 200,
                    dropout = 0.2, 
                    name = "Encoder_time_lstm_1",
@@ -418,16 +420,21 @@ def biaxial_pn_encoder_concat_deeplstm(training_batch, encoder_output_size = 10)
     encoder = LSTM(units = 200, 
                    dropout = 0.2,
                    name = "Encoder_time_lstm_2",
-                   return_sequences = True)(encoder)
+                   return_sequences = False)(encoder)
 
     encoder = Lambda(lambda x: tf.reshape(x, [-1, target_shape[2], 200]))(encoder)
 
 
     # NOTE AXIS
-    encoder = LSTM(units = encoder_output_size,
+    encoder = LSTM(units = 200,
                    dropout = 0.2,
                    name = "Encoder_note_lstm_1",
-                   return_sequences = False,
+                   return_sequences = True)(encoder)
+    
+    encoder = LSTM(units = encoder_output_size,
+                   dropout = 0.2,
+                   name = "Encoder_note_lstm_2",
+                   return_sequences = True,
                    activation = 'linear')(encoder)
 
     #encoder = Lambda(lambda x: tf.reshape(tf.squeeze(x), [target_shape[0], target_shape[1], target_shape[2]]))(encoder)
@@ -442,20 +449,23 @@ def biaxial_pn_encoder_concat_deeplstm(training_batch, encoder_output_size = 10)
     #)
     encoder = Lambda(lambda x: tf.concat([
 
-    tf.reshape(x, 
+        tf.reshape(x, 
                                [context_shape[0], 
                                 context_shape[1], 
-                                encoder_output_size])[:,0,:],
-    tf.reshape(x, 
+                                context_shape[3],
+                                encoder_output_size])[:,0,:,:],
+        tf.reshape(x, 
                                [context_shape[0], 
                                 context_shape[1], 
-                                encoder_output_size])[:,1,:]],
+                                context_shape[3],
+                                encoder_output_size])[:,1,:,:]
+    ],
                             axis = -1),
                     name = "Encoder_concat_representation"
     )(encoder)
 
     # Decoder
-    propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(tf.expand_dims(x, 1), 1), [1, target_shape[1], target_shape[2], 1]),
+    propagate_in_time = Lambda(lambda x: tf.tile(tf.expand_dims(x, 1), [1, target_shape[1], 1, 1]),
                                name = "Encoder_output_reshape")(encoder)
     propagate_in_time = Lambda(lambda x: tf.concat([input_target, x], axis = -1),
                                name = "Decoder_layer_1")(propagate_in_time)
