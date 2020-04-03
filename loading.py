@@ -250,10 +250,12 @@ class DataObject(DataLinks):
                  test_tms,
                  fs,
                  window_size,
+                 seed = None,
     ):
         super(DataObject, self).__init__(file, what_type, train_tms, test_tms)
         self.fs = fs
         self.window_size = window_size
+        self.seed = seed
 
     #def __getitem__(self, arg):
     #    return DataObject(self.xdata[arg], self.ydata[arg])
@@ -270,11 +272,13 @@ class DataObject(DataLinks):
         batch_data_link        = []
         batch_data_starts      = []
         
+        random.seed(self.seed)
         random_songs       = random.sample(self.links, songs_per_batch)
         random_songs_index = [self.links.index(song) for song in random_songs]
         
         examples_per_song = batch_size/songs_per_batch
 
+        random.seed(self.seed)
         target_split = random.randint(0, (self.test_tms-self.window_size - 1))
         
         for idx, link in enumerate(random_songs):
@@ -285,6 +289,7 @@ class DataObject(DataLinks):
             
             for i in range(int(examples_per_song)):
                 
+                random.seed(self.seed)
                 start        = random.randint(self.train_tms, timesteps-(self.train_tms+self.test_tms))
                 
                 l_batch_data_context.append(piano_matrix[(start-self.train_tms):start, :])
