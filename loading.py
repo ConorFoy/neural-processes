@@ -289,7 +289,7 @@ class DataObject(DataLinks):
             
             for i in range(int(examples_per_song)):
                 
-                random.seed(self.seed)
+                random.seed(self.seed + i)
                 start        = random.randint(self.train_tms, timesteps-(self.train_tms+self.test_tms))
                 
                 l_batch_data_context.append(piano_matrix[(start-self.train_tms):start, :])
